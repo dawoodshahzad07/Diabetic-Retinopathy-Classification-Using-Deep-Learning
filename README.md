@@ -1,108 +1,154 @@
-# Diabetic Retinopathy Classification Using Deep Learning
+# 🧠 Diabetic Retinopathy Classification Using Deep Learning
 
-This project leverages deep learning techniques to classify diabetic retinopathy from retinal images. Diabetic retinopathy is a diabetes complication that affects eyes and can lead to blindness if not detected early. This repository provides a comprehensive pipeline for data preprocessing, model training, evaluation, and prediction, aimed at assisting healthcare professionals in early diagnosis.
+This project presents a deep learning-based approach to classify retinal images into different stages of Diabetic Retinopathy (DR) using state-of-the-art architectures including **ConvNeXt** and a **Hybrid ConvNeXt + CNN** model.
 
-## Table of Contents
+## 📁 Contents
 
-- [Project Overview](#project-overview)
-- [Features](#features)
+- [Overview](#overview)
 - [Dataset](#dataset)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Model Architecture](#model-architecture)
+- [Models](#models)
+- [Preprocessing](#preprocessing)
+- [Training Configuration](#training-configuration)
 - [Results](#results)
-- [Contributing](#contributing)
-- [License](#license)
-
-## Project Overview
-
-The goal of this project is to automate the classification of diabetic retinopathy stages using fundus images and deep learning models (such as Convolutional Neural Networks). The solution includes data preprocessing, augmentation, model training, evaluation, and visualization of results.
-
-## Features
-
-- Data loading and preprocessing for retinal images
-- Deep learning model implementation (CNN-based)
-- Training and validation scripts
-- Model evaluation and metrics visualization
-- Prediction on new/unseen images
-- Easily extensible and modular code
-
-## Dataset
-
-You can use publicly available datasets such as the [Kaggle Diabetic Retinopathy Detection dataset](https://www.kaggle.com/c/diabetic-retinopathy-detection/data). Please download and place the dataset in the appropriate directory as described below.
-
-**Directory Structure:**
-```
-dataset/
-  ├── train/
-  ├── test/
-  └── labels.csv
-```
-
-## Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/dawoodshahzad07/Diabetic-Retinopathy-Classification-Using-Deep-Learning.git
-   cd Diabetic-Retinopathy-Classification-Using-Deep-Learning
-   ```
-
-2. **Create and activate a virtual environment (optional but recommended):**
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install the required dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Usage
-
-1. **Prepare your dataset:**  
-   Place your training and test images in the `dataset/train` and `dataset/test` folders. Ensure that the `labels.csv` file is present and properly formatted.
-
-2. **Train the model:**
-   ```bash
-   python train.py
-   ```
-
-3. **Evaluate the model:**
-   ```bash
-   python evaluate.py
-   ```
-
-4. **Make predictions on new images:**
-   ```bash
-   python predict.py --image path/to/image.jpg
-   ```
-
-5. **View results and metrics:**  
-   Check the `outputs/` directory for saved models, plots, and prediction results.
-
-## Model Architecture
-
-The core model is based on a Convolutional Neural Network (CNN) structure, which is effective for image classification tasks. The architecture can be customized in the `model.py` file. Transfer learning with pre-trained models such as ResNet or EfficientNet is also supported.
-
-## Results
-
-Results and model evaluation metrics (accuracy, confusion matrix, ROC curve, etc.) are saved in the `outputs/` directory after training and evaluation. Example results:
-
-- **Accuracy:** 90% (example, please update with actual results)
-- **Confusion Matrix:** ![Confusion Matrix](outputs/confusion_matrix.png)
-- **ROC Curve:** ![ROC Curve](outputs/roc_curve.png)
-
-## Contributing
-
-Contributions are welcome! Please open issues and submit pull requests for improvements, bug fixes, or new features.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
+- [Comparative Analysis](#comparative-analysis)
+- [Innovations in ConvNeXt](#innovations-in-convnext)
+- [Conclusion](#conclusion)
+- [References](#references)
+- [How to Run](#how-to-run)
 
 ---
 
-**Contact:**  
-Dawood Shahzad  
-[GitHub Profile](https://github.com/dawoodshahzad07)
+## 📌 Overview
+
+Diabetic Retinopathy is a serious eye condition caused by diabetes that can lead to vision loss. Early and accurate detection is vital. This project leverages modern deep learning architectures to classify retinal images into five categories representing different stages of DR.
+
+---
+
+## 📊 Dataset
+
+We used the **APTOS 2019 Blindness Detection** dataset which includes:
+
+- **3,662** training images
+- **1,928** test images  
+- **5 DR classes**:
+  - No DR
+  - Mild
+  - Moderate
+  - Severe
+  - Proliferative DR
+
+To address class imbalance, we curated a balanced subset:
+
+- **Balanced Training Set**: 1500 images  
+- **Testing Set**: 600 images (split from training leftovers)
+
+---
+
+## 🧠 Models
+
+### Model 01: ConvNeXt
+
+- Base: `ConvNeXt-Tiny` (Pretrained on ImageNet)
+- Custom classification head:
+  - Linear (1280 → 512) → ReLU → Dropout(0.3)
+  - Linear (512 → 5)
+
+---
+
+### Model 02: ConvNeXt + CNN (Hybrid)
+
+- Base: `ConvNeXt-Tiny` as feature extractor
+- Custom head:
+  - Linear (768 → 512)
+  - CNN Block: Conv2D → BatchNorm → ReLU → Dropout(0.3)
+  - Adaptive Average Pooling
+  - Linear (256 → 5)
+
+---
+
+## 🛠 Preprocessing
+
+Images were preprocessed as follows:
+
+- Resized to **224x224**
+- Normalized using **ImageNet** statistics
+- Data Augmentation:
+  - Horizontal & vertical flips
+  - Random rotations
+  - Elastic transformations
+  - Brightness & contrast adjustments
+
+---
+
+## ⚙️ Training Configuration
+
+- **Optimizer**: AdamW  
+- **Learning Rate**: 1e-4  
+- **Weight Decay**: 1e-4  
+- **Batch Size**: 32  
+- **Epochs**: 10  
+- **Scheduler**: ReduceLROnPlateau  
+- **Loss Function**: CrossEntropyLoss  
+- **Checkpointing**: Best model saved based on validation accuracy  
+
+---
+
+## 📈 Results
+
+### Validation Performance
+
+| Model            | Train Acc | Val Acc | Train Loss | Val Loss |
+|------------------|-----------|---------|------------|----------|
+| ConvNeXt         | 82.20%    | 84.64%  | 0.4798     | 0.4000   |
+| ConvNeXt + CNN   | 91.71%    | 81.42%  | 0.0079     | 0.0192   |
+
+### Testing Metrics
+
+| Model            | Precision | Recall | F1-Score | Test Accuracy |
+|------------------|-----------|--------|----------|----------------|
+| ConvNeXt         | 0.86      | 0.85   | 0.84     | 84.97%         |
+| ConvNeXt + CNN   | 0.85      | 0.84   | 0.84     | 84.15%         |
+
+Confusion matrices and ROC curves are provided in the report.
+
+---
+
+## 🔬 Comparative Analysis
+
+While the hybrid model achieved higher training accuracy, ConvNeXt showed better generalization on the validation and test sets, indicating robustness and reliability for real-world application.
+
+---
+
+## 💡 Innovations in ConvNeXt
+
+ConvNeXt improves upon traditional CNNs through:
+
+- Modernized ResNet design
+- Depthwise convolutions for efficiency
+- LayerNorm replacing BatchNorm
+- GELU activation for smoother gradients
+- Stochastic depth regularization
+
+---
+
+## ✅ Conclusion
+
+ConvNeXt proved to be a highly effective model for classifying diabetic retinopathy. Its architecture offers a robust, efficient, and scalable solution suitable for clinical use.
+
+---
+
+## 📚 References
+
+1. Z. Liu et al., *A ConvNet for the 2020s*, 2022.  
+2. K. O’Shea, R. Nash, *An Introduction to Convolutional Neural Networks*, 2015.  
+3. APTOS 2019 Blindness Detection Dataset  
+4. Diabetic Retinopathy Detection Guidelines  
+
+---
+
+## ▶️ How to Run
+
+1. Clone this repository  
+2. Install required libraries:  
+   ```bash
+   pip install -r requirements.txt
